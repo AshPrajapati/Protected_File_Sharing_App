@@ -1,0 +1,59 @@
+#include<bits/stdc++.h>
+using namespace std;
+class dsu {
+public:
+    vector<int>parent, height;
+    dsu(int n){
+        parent.resize(n);
+        height.resize(n);
+        for(int i=0; i<n; i++) parent[i] = i;
+    }
+    int findParent(int node){
+        if(parent[node] == node) return node;
+        return parent[node] = findParent(parent[node]);
+    }
+    void Union(int u, int v)
+    {
+        u = findParent(u), v = findParent(v);
+        if(height[u] > height[v]) parent[v] = u; 
+        else 
+        {
+            parent[u] = v;
+            height[v] += (height[u]==height[v]);
+        }
+    }
+};
+int main()
+{
+    cout<<"Enter the number of nodes : ";
+    int n; cin>>n;
+    cout<<"Enter the number of edges : ";
+    int m; cin>>m;
+    vector<pair<int, pair<int, int>>>edges(m);
+    cout<<"Enter U, V, and W (edge between U->V having weight = W)";
+    while(m--)
+    {
+        int u, v, w;
+        cin>>u>>v>>w;
+        edges.push_back({u, {v, w}});
+    }
+    sort(edges.begin(), edges.end(), [&](auto &a, auto &b){
+        return a.second.second < b.second.second;
+    });
+    dsu G = dsu(n);
+    vector<pair<int, int>>mst;
+    int cost = 0;
+    for(auto i:edges)
+    {
+        if(G.findParent(i.first) != G.findParent(i.second.first))
+        {
+            cost += i.second.second;
+            mst.push_back({i.first, i.second.first});
+            G.Union(i.first, i.second.first);
+        }
+    }
+    cout<<"Minimum Spannig Tree : \n";
+    for(auto i:mst) cout<<i.first<<" -> "<<i.second<<endl; 
+    cout<<"Minimum Cost : "<<cost;
+    return 0;
+}
